@@ -7,7 +7,7 @@
 <body>
     <h1>社員一覧</h1>
 
-	<form action="/employees/search" method="get">
+	<form th:action="@{/employees/search}" method="get">
     	名前: <input type="text" name="keyword">
     	部署: <input type="text" name="department">
     	<button type="submit">検索</button>
@@ -42,7 +42,7 @@
             <td th:text="${emp.name}"></td>
             <td th:text="${emp.department}"></td>
             <td>
-                <form action="/employees-ui/delete" method="post">
+                <form th:action="@{/employees-ui/delete}" method="post">
                     <input type="hidden" name="id" th:value="${emp.id}">
                     <button type="submit">削除</button>
                 </form>
