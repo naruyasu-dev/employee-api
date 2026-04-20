@@ -52,5 +52,3 @@ jobs:
         with:
           name: app-java-${{ matrix.java }}  # jar名
           path: target/*.jar  # 生成されたjar
-		  
-		  
