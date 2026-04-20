@@ -1,54 +1,31 @@
-name: CI  # ワークフロー名（Actions画面に表示）
+name: CI
 
 on:
   push:
-    branches: [ "master", "main" ]  # push時に実行
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "master", "main" ]  # PR時にも実行
+    branches: [ "main", "master" ]
 
 jobs:
-  test:  # ジョブ名（好きに変更OK）
-    runs-on: ubuntu-latest  # GitHubのLinuxマシンで実行
-
-    strategy:
-      matrix:
-        java: [17]  # Javaバージョン（後で21追加可能）
+  build:
+    runs-on: ubuntu-latest
 
     steps:
-      # ① ソースコード取得
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ② Java環境セットアップ
-      - name: Setup Java
-        uses: actions/setup-java@v5
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
         with:
-          distribution: temurin  # OpenJDK（安定）
-          java-version: ${{ matrix.java }}  # 上のmatrixを使用
-          cache: maven  # 依存関係をキャッシュ（高速化）
+          distribution: temurin
+          java-version: '17'
+          cache: maven
 
-      # ③ mvnwを実行可能にする（Linux用）
-      - name: Make mvnw executable
-        run: chmod +x mvnw
+      - name: Build WAR
+        run: mvn clean package
 
-      # ④ ビルド＆テスト実行（ここがCIの本体🔥）
-      - name: Build and Test
-        run: ./mvnw clean package
-        # clean → ビルド前に削除
-        # package → コンパイル + テスト + jar作成
-
-      # ⑤ テスト結果を保存（失敗しても保存）
-      - name: Upload Test Reports
-        if: always()  # 成功でも失敗でも必ず実行
+      - name: Upload WAR artifact
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports-java-${{ matrix.java }}  # ファイル名
-          path: target/surefire-reports/  # JUnit結果
-
-      # ⑥ ビルド成果物（jar）を保存
-      - name: Upload Build Artifact
-        if: success()  # 成功した場合のみ保存
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-java-${{ matrix.java }}  # jar名
-          path: target/*.jar  # 生成されたjar
+          name: employee-api-war
+          path: target/*.war
