@@ -33,4 +33,4 @@ jobs:
       - name: Start Tomcat
         shell: cmd
         run: |
-          C:\work\apache-tomcat-10.1.36\bin\startup.bat
+        C:\work\apache-tomcat-10.1.36\bin\startup.bat
