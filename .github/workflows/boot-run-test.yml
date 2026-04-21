@@ -1,0 +1,50 @@
+name: Boot Run Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-jar:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build
+        shell: cmd
+        run: mvn clean package
+
+      - name: Run application
+        shell: cmd
+        run: |
+          start "" cmd /c "java -jar target\employee-api.war > app.log 2>&1"
+
+      - name: Wait
+        shell: powershell
+        run: Start-Sleep -Seconds 30
+
+      - name: Show app.log
+        shell: cmd
+        run: |
+          if exist app.log (
+            type app.log
+          ) else (
+            echo app.log NOT FOUND
+          )
+
+      - name: Check 8080
+        shell: powershell
+        run: |
+          $r = Test-NetConnection -ComputerName localhost -Port 8080
+          $r
+
+      - name: Check Application
+        shell: cmd
+        run: curl -v http://localhost:8080/
