@@ -12,20 +12,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build (Maven)
+      - name: Build
         shell: cmd
         run: |
           mvn clean package
 
       - name: Stop Tomcat
-        shell: powershell
+        shell: cmd
         run: |
-          $env:CATALINA_HOME = 'C:\work\apache-tomcat-10.1.36'
-          $env:CATALINA_BASE = 'C:\work\apache-tomcat-10.1.36'
-          $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot'
-          & 'C:\work\apache-tomcat-10.1.36\bin\shutdown.bat'
-          Start-Sleep -Seconds 5
-          exit 0
+          schtasks /run /tn "StopTomcat"
+          timeout /t 5
+          exit /b 0
 
       - name: Deploy WAR
         shell: cmd
@@ -33,15 +30,12 @@ jobs:
           copy /Y target\employee-api.war C:\work\apache-tomcat-10.1.36\webapps\employee-api.war
 
       - name: Start Tomcat
-        shell: powershell
+        shell: cmd
         run: |
-          $env:CATALINA_HOME = 'C:\work\apache-tomcat-10.1.36'
-          $env:CATALINA_BASE = 'C:\work\apache-tomcat-10.1.36'
-          $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot'
-          Start-Process -FilePath 'C:\work\apache-tomcat-10.1.36\bin\catalina.bat' -ArgumentList 'start' -NoNewWindow
-          Start-Sleep -Seconds 10
+          schtasks /run /tn "StartTomcat"
+          timeout /t 10
 
       - name: Check Tomcat Port
-        shell: powershell
+        shell: cmd
         run: |
           netstat -ano | findstr :8080
