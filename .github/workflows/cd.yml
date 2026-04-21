@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build
+      - name: Build (Maven)
         shell: cmd
         run: |
           mvn clean package
@@ -20,7 +20,7 @@ jobs:
       - name: Stop Tomcat
         shell: cmd
         run: |
-          schtasks /run /tn "StopTomcat"
+          C:\work\stop-tomcat.cmd
           timeout /t 5
           exit /b 0
 
@@ -32,7 +32,11 @@ jobs:
       - name: Start Tomcat
         shell: cmd
         run: |
-          schtasks /run /tn "StartTomcat"
+          start "" C:\work\start-tomcat.cmd
+
+      - name: Wait for Tomcat
+        shell: cmd
+        run: |
           timeout /t 10
 
       - name: Check Tomcat Port
