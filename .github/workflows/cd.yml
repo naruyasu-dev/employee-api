@@ -1,4 +1,4 @@
-name: CD (Tomcat Deploy)
+name: CD
 
 on:
   workflow_run:
@@ -12,125 +12,25 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # 1) ソース取得
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2) Java 17 セットアップ
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      # 3) WAR ビルド
-      # target\employee-api.war が生成される想定
       - name: Build WAR
         shell: cmd
         run: mvn clean package
 
-      # 4) Tomcat 11 ダウンロード & 展開
-      # Spring Boot 4.0.5 は Servlet 6.1 baseline
-      # そのため Tomcat 11 系を使う
-      - name: Download Tomcat 11
+      - name: Show target
         shell: cmd
-        run: |
-          curl -L -o tomcat.zip https://archive.apache.org/dist/tomcat/tomcat-11/v11.0.0/bin/apache-tomcat-11.0.0-windows-x64.zip
-          tar -xf tomcat.zip
+        run: dir target
 
-      # 5) 展開確認
-      - name: Show workspace
-        shell: cmd
-        run: |
-          echo ===== root =====
-          dir
-          echo ===== tomcat =====
-          dir apache-tomcat-11.0.0
-          echo ===== bin =====
-          dir apache-tomcat-11.0.0\bin
-          echo ===== target =====
-          dir target
-
-      # 6) WAR を webapps に配置
-      # employee-api.war -> /employee-api/ で公開
-      - name: Deploy WAR
-        shell: cmd
-        run: copy target\employee-api.war apache-tomcat-11.0.0\webapps\
-
-      # 7) 配置確認
-      - name: Confirm deployed WAR
-        shell: cmd
-        run: dir apache-tomcat-11.0.0\webapps
-
-      # 8) Java 環境の見える化
-      - name: Show Java environment
-        shell: cmd
-        run: |
-          echo JAVA_HOME=%JAVA_HOME%
-          where java
-          java -version
-
-      # 9) Tomcat 起動
-      # 別cmdで起動し、ログをルート直下の tomcat.log に出力
-      - name: Start Tomcat (background + log)
-        shell: cmd
-        run: |
-          set "CATALINA_HOME=%CD%\apache-tomcat-11.0.0"
-          set "CATALINA_BASE=%CD%\apache-tomcat-11.0.0"
-          set "JAVA_HOME=%JAVA_HOME%"
-          cd /d apache-tomcat-11.0.0\bin
-          start "" cmd /c "catalina.bat run > ..\..\tomcat.log 2>&1"
-
-      # 10) 起動待機
-      - name: Wait for Tomcat
-        shell: powershell
-        run: Start-Sleep -Seconds 30
-
-      # 11) tomcat.log 表示
-      - name: Show tomcat.log
-        shell: cmd
-        run: |
-          echo ===== current dir =====
-          cd
-          echo ===== files =====
-          dir
-          echo ===== tomcat.log =====
-          if exist tomcat.log (
-            type tomcat.log
-          ) else (
-            echo tomcat.log NOT FOUND
-          )
-
-      # 12) Tomcat logs ディレクトリ表示
-      - name: Show Tomcat logs directory
-        shell: powershell
-        run: |
-          Write-Host "=== logs dir ==="
-          Get-ChildItem .\apache-tomcat-11.0.0\logs -ErrorAction SilentlyContinue
-
-          $logs = Get-ChildItem .\apache-tomcat-11.0.0\logs\* -File -ErrorAction SilentlyContinue
-          if ($logs) {
-            foreach ($l in $logs) {
-              Write-Host "===== $($l.Name) ====="
-              Get-Content $l.FullName -ErrorAction SilentlyContinue
-            }
-          } else {
-            Write-Host "No Tomcat log files"
-          }
-
-      # 13) 8080 ポート確認
-      - name: Check port 8080
-        shell: powershell
-        run: |
-          $r = Test-NetConnection -ComputerName localhost -Port 8080
-          $r
-          if ($r.TcpTestSucceeded) {
-            Write-Host "Tomcat is listening on 8080"
-          } else {
-            Write-Host "Tomcat is NOT listening on 8080"
-          }
-
-      # 14) アプリ疎通確認
-      - name: Check Application
-        shell: cmd
-        run: curl -v http://localhost:8080/employee-api/
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: employee-api-war
+          path: target/employee-api.war
