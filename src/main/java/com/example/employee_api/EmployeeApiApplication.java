@@ -5,12 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
-// 外部 Tomcat から起動できるようにする
 @SpringBootApplication
 public class EmployeeApiApplication extends SpringBootServletInitializer {
 
-	// Tomcat がこの Spring Boot アプリを見つけて起動するための設定
-	@Override
+    @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         return application.sources(EmployeeApiApplication.class);
     }
