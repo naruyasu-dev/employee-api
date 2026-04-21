@@ -2,46 +2,46 @@ name: CD
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
 
 jobs:
   deploy:
     runs-on: self-hosted
 
     steps:
-      # ソース取得
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Maven ビルド
       - name: Build (Maven)
         shell: cmd
         run: |
           mvn clean package
 
-      # Tomcat 停止（安全版）
       - name: Stop Tomcat
-        shell: cmd
+        shell: powershell
         run: |
-          call C:\work\apache-tomcat-10.1.36\bin\shutdown.bat
-          timeout /t 5
-          exit /b 0
+          $env:CATALINA_HOME = 'C:\work\apache-tomcat-10.1.36'
+          $env:CATALINA_BASE = 'C:\work\apache-tomcat-10.1.36'
+          $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot'
+          & 'C:\work\apache-tomcat-10.1.36\bin\shutdown.bat'
+          Start-Sleep -Seconds 5
+          exit 0
 
-      # WAR 配置
       - name: Deploy WAR
         shell: cmd
         run: |
           copy /Y target\employee-api.war C:\work\apache-tomcat-10.1.36\webapps\employee-api.war
 
-      # Tomcat 起動
       - name: Start Tomcat
-        shell: cmd
+        shell: powershell
         run: |
-          call C:\work\apache-tomcat-10.1.36\bin\startup.bat
-          timeout /t 10
+          $env:CATALINA_HOME = 'C:\work\apache-tomcat-10.1.36'
+          $env:CATALINA_BASE = 'C:\work\apache-tomcat-10.1.36'
+          $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot'
+          Start-Process -FilePath 'C:\work\apache-tomcat-10.1.36\bin\catalina.bat' -ArgumentList 'start' -NoNewWindow
+          Start-Sleep -Seconds 10
 
-      # 起動確認（重要）
       - name: Check Tomcat Port
-        shell: cmd
+        shell: powershell
         run: |
           netstat -ano | findstr :8080
