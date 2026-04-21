@@ -22,22 +22,49 @@ jobs:
         run: mvn clean package
 
       - name: Run application
-        shell: cmd
-        run: |
-          start "" cmd /c "java -Dspring.profiles.active=github -jar target\employee-api.war > app.log 2>&1"
-
-      - name: Wait
         shell: powershell
-        run: Start-Sleep -Seconds 30
+        run: |
+          $p = Start-Process `
+            -FilePath "java" `
+            -ArgumentList "-Dspring.profiles.active=github", "-jar", "target\employee-api.war" `
+            -RedirectStandardOutput "app.log" `
+            -RedirectStandardError "app.err" `
+            -PassThru
+
+          $p.Id | Out-File app.pid -Encoding ascii
+          Start-Sleep -Seconds 45
+
+      - name: Show process status
+        shell: powershell
+        run: |
+          if (Test-Path .\app.pid) {
+            $pid = Get-Content .\app.pid
+            $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
+            if ($proc) {
+              Write-Host "PROCESS ALIVE: PID=$pid"
+            } else {
+              Write-Host "PROCESS NOT RUNNING: PID=$pid"
+            }
+          } else {
+            Write-Host "app.pid NOT FOUND"
+          }
 
       - name: Show app.log
-        shell: cmd
+        shell: powershell
         run: |
-          if exist app.log (
-            type app.log
-          ) else (
-            echo app.log NOT FOUND
-          )
+          Write-Host "===== app.log ====="
+          if (Test-Path .\app.log) {
+            Get-Content .\app.log
+          } else {
+            Write-Host "app.log NOT FOUND"
+          }
+
+          Write-Host "===== app.err ====="
+          if (Test-Path .\app.err) {
+            Get-Content .\app.err
+          } else {
+            Write-Host "app.err NOT FOUND"
+          }
 
       - name: Check 8080
         shell: powershell
