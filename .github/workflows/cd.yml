@@ -8,37 +8,69 @@ on:
 
 jobs:
   deploy:
+    # CI が成功したときだけ CD を実行
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: windows-latest
 
     steps:
+      # 1. ソース取得
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2. Java 17 セットアップ
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
+      # 3. Maven で WAR 作成
+      # target\employee-api.war ができる想定
       - name: Build WAR
+        shell: cmd
         run: mvn clean package
 
+      # 4. Tomcat ダウンロード & 展開
       - name: Download Tomcat
         shell: cmd
         run: |
           curl -L -o tomcat.zip https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.36/bin/apache-tomcat-10.1.36-windows-x64.zip
           tar -xf tomcat.zip
 
-      - name: Deploy WAR
+      # 5. 展開確認
+      - name: Show workspace
         shell: cmd
         run: |
-          copy target\employee-api.war apache-tomcat-10.1.36\webapps\
+          echo ===== root =====
+          dir
+          echo ===== tomcat =====
+          dir apache-tomcat-10.1.36
+          echo ===== bin =====
+          dir apache-tomcat-10.1.36\bin
+          echo ===== target =====
+          dir target
 
-      - name: Confirm WAR
+      # 6. WAR を webapps へ配置
+      # employee-api.war -> /employee-api/ でアクセス
+      - name: Deploy WAR
+        shell: cmd
+        run: copy target\employee-api.war apache-tomcat-10.1.36\webapps\
+
+      # 7. 配置確認
+      - name: Confirm deployed WAR
         shell: cmd
         run: dir apache-tomcat-10.1.36\webapps
 
+      # 8. Java / 環境変数確認
+      - name: Show Java environment
+        shell: cmd
+        run: |
+          echo JAVA_HOME=%JAVA_HOME%
+          where java
+          java -version
+
+      # 9. Tomcat 起動
+      # start を使って別プロセスで起動
       - name: Start Tomcat
         shell: cmd
         run: |
@@ -47,25 +79,51 @@ jobs:
           set "JAVA_HOME=%JAVA_HOME%"
           start "" apache-tomcat-10.1.36\bin\startup.bat
 
+      # 10. 起動待機
+      # WAR 展開もあるので少し長めに待つ
       - name: Wait for Tomcat
         shell: powershell
-        run: Start-Sleep -Seconds 20
+        run: Start-Sleep -Seconds 30
 
+      # 11. ポート確認
+      # ここで 8080 が LISTEN しているかを見る
+      - name: Check port 8080
+        shell: powershell
+        run: |
+          $result = Test-NetConnection -ComputerName localhost -Port 8080
+          $result
+          if ($result.TcpTestSucceeded) {
+            Write-Host "Tomcat is listening on port 8080"
+          } else {
+            Write-Host "Tomcat is NOT listening on port 8080"
+          }
+
+      # 12. Tomcat ログ確認
+      # .log に限定せず logs 配下の全ファイルを読む
       - name: Show Tomcat logs
         shell: powershell
         run: |
+          Write-Host "=== logs directory ==="
           Get-ChildItem .\apache-tomcat-10.1.36\logs -ErrorAction SilentlyContinue
-          $logs = Get-ChildItem .\apache-tomcat-10.1.36\logs\*.log -ErrorAction SilentlyContinue
+
+          Write-Host "=== all log files ==="
+          $logs = Get-ChildItem .\apache-tomcat-10.1.36\logs\* -File -ErrorAction SilentlyContinue
           if ($logs) {
-            Get-Content $logs
+            foreach ($log in $logs) {
+              Write-Host "===== $($log.Name) ====="
+              Get-Content $log.FullName -ErrorAction SilentlyContinue
+            }
           } else {
-            Write-Host "No Tomcat log files found."
+            Write-Host "No log files found."
           }
 
-      - name: Check port 8080
-        shell: powershell
-        run: Test-NetConnection -ComputerName localhost -Port 8080
+      # 13. webapps 配下の展開結果確認
+      # employee-api フォルダができているかも見える
+      - name: Show webapps after startup
+        shell: cmd
+        run: dir apache-tomcat-10.1.36\webapps
 
+      # 14. アプリ疎通確認
       - name: Check Application
         shell: cmd
-        run: curl http://localhost:8080/employee-api/
+        run: curl -v http://localhost:8080/employee-api/
