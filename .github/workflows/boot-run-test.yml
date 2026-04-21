@@ -21,6 +21,6 @@ jobs:
         shell: cmd
         run: mvn clean package
 
-      - name: Run application (foreground)
+      - name: Run application
         shell: cmd
         run: java -Dspring.profiles.active=github -jar target\employee-api.war
