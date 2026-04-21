@@ -24,7 +24,7 @@ jobs:
       - name: Run application
         shell: cmd
         run: |
-          start "" cmd /c "java -jar target\employee-api.war > app.log 2>&1"
+          start "" cmd /c "java -Dspring.profiles.active=github -jar target\employee-api.war > app.log 2>&1"
 
       - name: Wait
         shell: powershell
