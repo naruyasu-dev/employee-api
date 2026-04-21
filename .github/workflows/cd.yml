@@ -23,30 +23,69 @@ jobs:
         run: mvn clean package
 
       - name: Download Tomcat
+        shell: powershell
         run: |
-          curl -L -o tomcat.zip https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.36/bin/apache-tomcat-10.1.36-windows-x64.zip
+          curl.exe -L -o tomcat.zip https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.36/bin/apache-tomcat-10.1.36-windows-x64.zip
           tar -xf tomcat.zip
-        shell: cmd
 
-      - name: Deploy WAR to Tomcat as ROOT
-        run: copy target\*.war apache-tomcat-10.1.36\webapps\ROOT.war
-        shell: cmd
+      - name: Check extracted folders
+        shell: powershell
+        run: |
+          Get-ChildItem
+          Get-ChildItem apache-tomcat-10.1.36
+          Get-ChildItem apache-tomcat-10.1.36\bin
+          Get-ChildItem apache-tomcat-10.1.36\webapps
 
-      - name: Show webapps
-        run: dir apache-tomcat-10.1.36\webapps
+      - name: Deploy WAR to Tomcat
         shell: cmd
+        run: copy target\employee-api.war apache-tomcat-10.1.36\webapps\
 
       - name: Start Tomcat
-        run: apache-tomcat-10.1.36\bin\startup.bat
-        shell: cmd
+        shell: powershell
+        run: |
+          $tomcat = Join-Path $PWD "apache-tomcat-10.1.36"
+          $stdout = Join-Path $PWD "tomcat-stdout.txt"
+          $stderr = Join-Path $PWD "tomcat-stderr.txt"
+
+          $env:CATALINA_HOME = $tomcat
+          $env:CATALINA_BASE = $tomcat
+
+          Start-Process `
+            -FilePath "$tomcat\bin\catalina.bat" `
+            -ArgumentList "run" `
+            -WorkingDirectory $tomcat `
+            -RedirectStandardOutput $stdout `
+            -RedirectStandardError $stderr `
+            -NoNewWindow
 
       - name: Wait for Tomcat
+        shell: powershell
         run: Start-Sleep -Seconds 20
-        shell: powershell
 
-      - name: Show Tomcat logs
-        run: Get-ChildItem apache-tomcat-10.1.36\logs ; Get-Content apache-tomcat-10.1.36\logs\*.log
+      - name: Show Tomcat output
         shell: powershell
+        run: |
+          Write-Host "=== tomcat-stdout.txt ==="
+          if (Test-Path .\tomcat-stdout.txt) { Get-Content .\tomcat-stdout.txt } else { Write-Host "stdout file not found" }
+
+          Write-Host "=== tomcat-stderr.txt ==="
+          if (Test-Path .\tomcat-stderr.txt) { Get-Content .\tomcat-stderr.txt } else { Write-Host "stderr file not found" }
+
+          Write-Host "=== logs directory ==="
+          Get-ChildItem apache-tomcat-10.1.36\logs -ErrorAction SilentlyContinue
+
+          $logFiles = Get-ChildItem apache-tomcat-10.1.36\logs\*.log -ErrorAction SilentlyContinue
+          if ($logFiles) {
+            Write-Host "=== Tomcat log contents ==="
+            Get-Content $logFiles
+          } else {
+            Write-Host "No Tomcat log files found."
+          }
+
+      - name: Check port 8080
+        shell: powershell
+        run: |
+          Test-NetConnection -ComputerName localhost -Port 8080
 
       - name: Check Application
-        run: curl http://localhost:8080
+        run: curl.exe http://localhost:8080/employee-api/
