@@ -13,8 +13,6 @@ public class EmployeeApiApplication extends SpringBootServletInitializer {
         return application.sources(EmployeeApiApplication.class);
     }
 
-
-
     public static void main(String[] args) {
         SpringApplication.run(EmployeeApiApplication.class, args);
     }
