@@ -9,28 +9,39 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v4
+      # ソース取得
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Build
+      # Maven ビルド
+      - name: Build (Maven)
         shell: cmd
-        run: mvn clean package
+        run: |
+          mvn clean package
 
-      - name: Show target files
-        shell: cmd
-        run: dir target
-
+      # Tomcat 停止（安全版）
       - name: Stop Tomcat
         shell: cmd
         run: |
-          taskkill /F /IM java.exe
+          call C:\work\apache-tomcat-10.1.36\bin\shutdown.bat
+          timeout /t 5
           exit /b 0
 
-      - name: Deploy
+      # WAR 配置
+      - name: Deploy WAR
         shell: cmd
         run: |
-          copy /Y target\employee-api.war C:\work\apache-tomcat-10.1.36\webapps\employee-api.war
+          copy /Y target\employee-api-0.0.1-SNAPSHOT.war C:\work\apache-tomcat-10.1.36\webapps\employee-api.war
 
+      # Tomcat 起動
       - name: Start Tomcat
         shell: cmd
         run: |
-        C:\work\apache-tomcat-10.1.36\bin\startup.bat
+          call C:\work\apache-tomcat-10.1.36\bin\startup.bat
+          timeout /t 10
+
+      # 起動確認（重要）
+      - name: Check Tomcat Port
+        shell: cmd
+        run: |
+          netstat -ano | findstr :8080
