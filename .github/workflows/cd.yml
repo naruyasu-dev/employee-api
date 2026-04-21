@@ -1,45 +1,54 @@
-name: CD
+name: CD (Tomcat Deploy)
 
 on:
-  push:
-    branches: [ "master", "main" ]
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      # ① ソース取得
+      - uses: actions/checkout@v4
 
-      - name: Build (Maven)
-        shell: cmd
+      # ② Javaセットアップ
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # ③ ビルド（WAR作成）
+      - name: Build WAR
+        run: mvn clean package
+
+      # ④ Tomcatダウンロード
+      - name: Download Tomcat
         run: |
-          mvn clean package
+          curl -L -o tomcat.zip https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.36/bin/apache-tomcat-10.1.36-windows-x64.zip
+          tar -xf tomcat.zip
 
-      - name: Stop Tomcat
-        shell: cmd
+      # ⑤ WAR配置
+      - name: Deploy WAR to Tomcat
         run: |
-          C:\work\stop-tomcat.cmd
-          timeout /t 5
-          exit /b 0
+          copy target\*.war apache-tomcat-10.1.36\webapps\
 
-      - name: Deploy WAR
-        shell: cmd
-        run: |
-          copy /Y target\employee-api.war C:\work\apache-tomcat-10.1.36\webapps\employee-api.war
-
+      # ⑥ Tomcat起動
       - name: Start Tomcat
-        shell: cmd
         run: |
-          start "" C:\work\start-tomcat.cmd
+          set "CATALINA_HOME=%CD%\apache-tomcat-10.1.36"
+          set "JAVA_HOME=%JAVA_HOME%"
+          call apache-tomcat-10.1.36\bin\startup.bat
+        shell: cmd
 
+      # ⑦ 起動待機（←ここ修正ポイント）
       - name: Wait for Tomcat
-        shell: cmd
-        run: |
-          timeout /t 10
+        run: Start-Sleep -Seconds 10
+        shell: powershell
 
-      - name: Check Tomcat Port
-        shell: cmd
-        run: |
-          netstat -ano | findstr :8080
+      # ⑧ 動作確認
+      - name: Check Application
+        run: curl http://localhost:8080
