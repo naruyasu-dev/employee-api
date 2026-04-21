@@ -8,84 +8,64 @@ on:
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      # ① ソース取得
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      # ② Javaセットアップ（JDK17）
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
+      # ③ WARビルド（target/employee-api.war を想定）
       - name: Build WAR
         run: mvn clean package
 
+      # ④ Tomcat ダウンロード＆展開
       - name: Download Tomcat
-        shell: powershell
+        shell: cmd
         run: |
-          curl.exe -L -o tomcat.zip https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.36/bin/apache-tomcat-10.1.36-windows-x64.zip
+          curl -L -o tomcat.zip https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.36/bin/apache-tomcat-10.1.36-windows-x64.zip
           tar -xf tomcat.zip
 
-      - name: Check extracted folders
-        shell: powershell
-        run: |
-          Get-ChildItem
-          Get-ChildItem apache-tomcat-10.1.36
-          Get-ChildItem apache-tomcat-10.1.36\bin
-          Get-ChildItem apache-tomcat-10.1.36\webapps
-
-      - name: Deploy WAR to Tomcat
+      # ⑤ WAR配置
+      - name: Deploy WAR
         shell: cmd
-        run: copy target\employee-api.war apache-tomcat-10.1.36\webapps\
+        run: |
+          copy target\employee-api.war apache-tomcat-10.1.36\webapps\
 
+      # ⑥ 配置確認（重要）
+      - name: Confirm WAR
+        shell: cmd
+        run: dir apache-tomcat-10.1.36\webapps
+
+      # ⑦ Tomcat起動（フォアグラウンド＋ログ保存）
       - name: Start Tomcat
-        shell: powershell
+        shell: cmd
         run: |
-          $tomcat = Join-Path $PWD "apache-tomcat-10.1.36"
-          $stdout = Join-Path $PWD "tomcat-stdout.txt"
-          $stderr = Join-Path $PWD "tomcat-stderr.txt"
+          set "CATALINA_HOME=%CD%\apache-tomcat-10.1.36"
+          set "CATALINA_BASE=%CD%\apache-tomcat-10.1.36"
+          set "JAVA_HOME=%JAVA_HOME%"
 
-          $env:CATALINA_HOME = $tomcat
-          $env:CATALINA_BASE = $tomcat
+          apache-tomcat-10.1.36\bin\catalina.bat run > tomcat.log 2>&1
 
-          Start-Process `
-            -FilePath "$tomcat\bin\catalina.bat" `
-            -ArgumentList "run" `
-            -WorkingDirectory $tomcat `
-            -RedirectStandardOutput $stdout `
-            -RedirectStandardError $stderr `
-            -NoNewWindow
+      # ⑧ Tomcatログ確認（ここが最重要）
+      - name: Show Tomcat log
+        shell: cmd
+        run: type tomcat.log
 
-      - name: Wait for Tomcat
+      # ⑨ ポート確認（起動確認）
+      - name: Check port
         shell: powershell
-        run: Start-Sleep -Seconds 20
+        run: Test-NetConnection -ComputerName localhost -Port 8080
 
-      - name: Show Tomcat output
-        shell: powershell
-        run: |
-          Write-Host "=== tomcat-stdout.txt ==="
-          if (Test-Path .\tomcat-stdout.txt) { Get-Content .\tomcat-stdout.txt } else { Write-Host "stdout file not found" }
-
-          Write-Host "=== tomcat-stderr.txt ==="
-          if (Test-Path .\tomcat-stderr.txt) { Get-Content .\tomcat-stderr.txt } else { Write-Host "stderr file not found" }
-
-          Write-Host "=== logs directory ==="
-          Get-ChildItem apache-tomcat-10.1.36\logs -ErrorAction SilentlyContinue
-
-          $logFiles = Get-ChildItem apache-tomcat-10.1.36\logs\*.log -ErrorAction SilentlyContinue
-          if ($logFiles) {
-            Write-Host "=== Tomcat log contents ==="
-            Get-Content $logFiles
-          } else {
-            Write-Host "No Tomcat log files found."
-          }
-
-      - name: Check port 8080
-        shell: powershell
-        run: |
-          Test-NetConnection -ComputerName localhost -Port 8080
-
+      # ⑩ アプリ確認（WAR名に対応）
       - name: Check Application
-        run: curl.exe http://localhost:8080/employee-api/
+        shell: cmd
+        run: curl http://localhost:8080/employee-api/
