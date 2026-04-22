@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/employees")
 public class EmployeeRestController {
 
+    // test7
+    // test 8
     private final EmployeeService employeeService;
 
     public EmployeeRestController(EmployeeService employeeService) {
@@ -20,6 +22,4 @@ public class EmployeeRestController {
     public List<Employee> findAll() {
         return employeeService.findAll();
     }
-
-    // test7
 }
