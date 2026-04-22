@@ -3,6 +3,7 @@ package com.example.employee_api;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,5 +36,10 @@ public class EmployeeRestController {
     public Employee addEmployee(@RequestBody Employee employee) {
         employeeService.add(employee);
         return employee;
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteEmployee(@PathVariable Long id) {
+        employeeService.delete(id);
     }
 }
