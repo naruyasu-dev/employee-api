@@ -15,10 +15,10 @@ public class Employee {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@NotBlank(message = "名前は必須です")
+	@NotBlank(message = "名前は必須")
 	private String name;
 
-	@NotBlank(message = "部署は必須です")
+	@NotBlank(message = "部署は必須")
 	private String department;
 
 	public Employee() {
