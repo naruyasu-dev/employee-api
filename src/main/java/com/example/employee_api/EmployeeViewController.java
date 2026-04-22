@@ -19,7 +19,7 @@ public class EmployeeViewController {
         this.employeeService = employeeService;
     }
 
-    @GetMapping("/employees")
+    @GetMapping("/employees-ui")
     public String employees(Model model) {
         model.addAttribute("employees", employeeService.findAll());
         model.addAttribute("employee", new Employee());
