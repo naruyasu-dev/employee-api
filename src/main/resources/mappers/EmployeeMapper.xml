@@ -1,27 +1,32 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <mapper namespace="com.example.employee_api.EmployeeMapper">
 
     <select id="findAll" resultType="Employee">
-        SELECT id, name, department FROM employee
+        SELECT id, name, department
+        FROM employee
     </select>
 
-    <select id="findById" resultType="Employee">
-        SELECT id, name, department FROM employee WHERE id = #{id}
+    <select id="findById" parameterType="long" resultType="Employee">
+        SELECT id, name, department
+        FROM employee
+        WHERE id = #{id}
     </select>
 
-    <insert id="insert">
+    <insert id="insert" parameterType="Employee">
         INSERT INTO employee(name, department)
         VALUES (#{name}, #{department})
     </insert>
 
-    <update id="update">
+    <update id="update" parameterType="Employee">
         UPDATE employee
-        SET name = #{name}, department = #{department}
+        SET name = #{name},
+            department = #{department}
         WHERE id = #{id}
     </update>
 
-    <delete id="delete">
-        DELETE FROM employee WHERE id = #{id}
+    <delete id="delete" parameterType="long">
+        DELETE FROM employee
+        WHERE id = #{id}
     </delete>
 
 </mapper>
