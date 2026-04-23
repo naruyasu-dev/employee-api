@@ -3,7 +3,7 @@ package com.example.employee_api;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.data.repository.query.Param;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface EmployeeMapper {
@@ -18,7 +18,6 @@ public interface EmployeeMapper {
 
     void delete(Long id);
 
-    // 動的SQL
     List<Employee> search(@Param("keyword") String keyword,
                           @Param("department") String department);
 }
