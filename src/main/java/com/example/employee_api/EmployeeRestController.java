@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/employees")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200")
 public class EmployeeRestController {
 
     private final EmployeeService employeeService;
@@ -34,9 +35,14 @@ public class EmployeeRestController {
     }
 
     @PostMapping
-    public Employee addEmployee(@RequestBody Employee employee) {
+    public void addEmployee(@RequestBody Employee employee) {
         employeeService.add(employee);
-        return employee;
+    }
+
+    @PutMapping("/{id}")
+    public void updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
+        employee.setId(id);
+        employeeService.update(employee);
     }
 
     @DeleteMapping("/{id}")
@@ -44,10 +50,10 @@ public class EmployeeRestController {
         employeeService.delete(id);
     }
 
-    @PutMapping("/{id}")
-    public Employee updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
-        employee.setId(id);
-        employeeService.update(employee);
-        return employee;
+    @GetMapping("/search")
+    public List<Employee> search(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String department) {
+        return employeeService.search(keyword, department);
     }
 }

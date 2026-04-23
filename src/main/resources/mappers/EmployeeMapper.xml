@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mapper namespace="com.example.employee_api.EmployeeMapper">
+
+    <!-- 一覧 -->
+    <select id="findAll" resultType="Employee">
+        SELECT id, name, department
+        FROM employee
+        ORDER BY id
+    </select>
+
+    <!-- 1件 -->
+    <select id="findById" parameterType="long" resultType="Employee">
+        SELECT id, name, department
+        FROM employee
+        WHERE id = #{id}
+    </select>
+
+    <!-- 追加 -->
+    <insert id="insert" parameterType="Employee">
+        INSERT INTO employee (name, department)
+        VALUES (#{name}, #{department})
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="Employee">
+        UPDATE employee
+        SET name = #{name},
+            department = #{department}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 削除 -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM employee
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 動的SQL（検索） -->
+    <select id="search" resultType="Employee">
+        SELECT id, name, department
+        FROM employee
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="department != null and department != ''">
+                AND department = #{department}
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+
+</mapper>

@@ -9,33 +9,33 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class EmployeeService {
 
-    private final EmployeeRepository employeeRepository;
+    private final EmployeeMapper employeeMapper;
 
-    public EmployeeService(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
+    public EmployeeService(EmployeeMapper employeeMapper) {
+        this.employeeMapper = employeeMapper;
     }
 
     public List<Employee> findAll() {
-        return employeeRepository.findAll();
+        return employeeMapper.findAll();
     }
 
     public Employee findById(Long id) {
-        return employeeRepository.findById(id).orElse(null);
+        return employeeMapper.findById(id);
     }
 
     public void add(Employee employee) {
-        employeeRepository.save(employee);
+        employeeMapper.insert(employee);
     }
 
     public void update(Employee employee) {
-        employeeRepository.save(employee);
+        employeeMapper.update(employee);
     }
 
     public void delete(Long id) {
-        employeeRepository.deleteById(id);
+        employeeMapper.delete(id);
     }
-    public List<Employee> searchByNameAndDepartment(String keyword, String department) {
-        return employeeRepository
-                .findByNameContainingAndDepartmentContaining(keyword, department);
+
+    public List<Employee> search(String keyword, String department) {
+        return employeeMapper.search(keyword, department);
     }
 }
