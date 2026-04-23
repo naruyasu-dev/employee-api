@@ -38,5 +38,32 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy Angular') {
+            steps {
+                bat '''
+                echo ===== Deploy Angular =====
+
+                set "SRC=C:\\Users\\ota\\employee-ui\\dist\\employee-ui"
+                set "DST=%TOMCAT_HOME%\\webapps\\employee-ui"
+
+                if not exist "%SRC%" (
+                    echo ERROR: %SRC% not found
+                    exit /b 1
+                )
+
+                if not exist "%DST%" (
+                    mkdir "%DST%"
+                )
+
+                xcopy "%SRC%\\*" "%DST%\\" /E /I /Y
+
+                if exist "%DST%\\browser" (
+                    move "%DST%\\browser\\*" "%DST%\\" >nul
+                    rmdir /s /q "%DST%\\browser"
+                )
+                '''
+            }
+        }
     }
 }
