@@ -1,39 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  MyBatis Mapper 定義ファイル
+  ・JavaのEmployeeMapperインターフェースと紐づく
+  ・SQLをここに記述する
+-->
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "./mybatis-3-mapper.dtd" >
+  "./mybatis-3-mapper.dtd">
 <!--  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" -->
 
+<!--
+  namespace:
+  ・対応するMapperインターフェースの完全修飾名
+  ・この中の id がメソッド名と一致する必要がある
+-->
 <mapper namespace="com.example.employee_api.EmployeeMapper">
 
+    <!--
+      全件取得
+      ・EmployeeMapper.findAll() に対応
+      ・resultType: 1レコードをどのクラスにマッピングするか
+    -->
     <select id="findAll" resultType="com.example.employee_api.Employee">
-        SELECT id, name, department FROM employee
+        SELECT id, name, department
+        FROM employee
     </select>
 
+    <!--
+      IDで1件取得
+      ・#{id} は引数の値をバインド
+    -->
     <select id="findById" resultType="com.example.employee_api.Employee">
-        SELECT id, name, department FROM employee WHERE id = #{id}
+        SELECT id, name, department
+        FROM employee
+        WHERE id = #{id}
     </select>
 
+    <!--
+      登録（INSERT）
+      ・parameterType: 引数の型
+      ・#{name} などは Employee のプロパティを参照
+    -->
     <insert id="insert" parameterType="com.example.employee_api.Employee">
-        INSERT INTO employee(name, department)
+        INSERT INTO employee (name, department)
         VALUES (#{name}, #{department})
     </insert>
 
+    <!--
+      更新（UPDATE）
+      ・主キー(id)で対象を特定
+    -->
     <update id="update" parameterType="com.example.employee_api.Employee">
         UPDATE employee
-        SET name = #{name}, department = #{department}
+        SET name = #{name},
+            department = #{department}
         WHERE id = #{id}
     </update>
 
+    <!--
+      削除（DELETE）
+      ・id を指定して削除
+      ・parameterType="long" は引数の型
+    -->
     <delete id="delete" parameterType="long">
-        DELETE FROM employee WHERE id = #{id}
+        DELETE FROM employee
+        WHERE id = #{id}
     </delete>
 
+    <!--
+      検索（部分一致）
+      ・name と department をLIKE検索
+      ・CONCAT('%', 値, '%') で部分一致
+    -->
     <select id="search" resultType="com.example.employee_api.Employee">
-	    SELECT id, name, department
-    	FROM employee
-    	WHERE name LIKE CONCAT('%', #{keyword}, '%')
-      	AND department LIKE CONCAT('%', #{department}, '%')
-	</select>
+        SELECT id, name, department
+        FROM employee
+        WHERE name LIKE CONCAT('%', #{keyword}, '%')
+          AND department LIKE CONCAT('%', #{department}, '%')
+    </select>
 
 </mapper>
