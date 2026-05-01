@@ -26,7 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 // ↑ REST API用コントローラ（戻り値はJSONになる）
 
-@RequestMapping("/employee-api/employees")
+//@RequestMapping("/employee-api/employees")
+@RequestMapping("/employees")
 // ↑ URLの共通パス（例: /employees, /employees/1）
 public class EmployeeRestController {
 
