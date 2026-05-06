@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "./mybatis-3-mapper.dtd">
+<!--  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" -->
+
+<mapper namespace="com.example.employee_api.DepartmentMapper">
+
+    <!--
+        部署一覧取得
+
+        department テーブルから全件取得する。
+        parent_id は Java 側の parentId に自動マッピングされる。
+    -->
+    <select id="findAll" resultType="com.example.employee_api.Department">
+        SELECT
+            id,
+            name,
+            parent_id
+        FROM
+            department
+        ORDER BY
+            id
+    </select>
+
+    <!--
+        部署詳細取得
+
+        指定された id の部署情報を1件取得する。
+    -->
+    <select id="findById" parameterType="long" resultType="com.example.employee_api.Department">
+        SELECT
+            id,
+            name,
+            parent_id
+        FROM
+            department
+        WHERE
+            id = #{id}
+    </select>
+
+    <!--
+        部署登録
+
+        name と parent_id を登録する。
+    -->
+    <insert id="insert" parameterType="com.example.employee_api.Department">
+        INSERT INTO department (
+            name,
+            parent_id
+        ) VALUES (
+            #{name},
+            #{parentId}
+        )
+    </insert>
+
+    <!--
+        部署更新
+
+        指定された id の部署名、親部署IDを更新する。
+    -->
+    <update id="update" parameterType="com.example.employee_api.Department">
+        UPDATE
+            department
+        SET
+            name = #{name},
+            parent_id = #{parentId}
+        WHERE
+            id = #{id}
+    </update>
+
+    <!--
+        部署削除
+
+        指定された id の部署を削除する。
+    -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM
+            department
+        WHERE
+            id = #{id}
+    </delete>
+
+    <!--
+        部署検索
+
+        keyword が未指定または空文字の場合は全件取得する。
+        keyword が指定された場合は部署名で部分一致検索する。
+    -->
+    <select id="search" resultType="com.example.employee_api.Department">
+        SELECT
+            id,
+            name,
+            parent_id
+        FROM
+            department
+        <where>
+            <if test="keyword != null and keyword != ''">
+                name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY
+            id
+    </select>
+
+</mapper>
