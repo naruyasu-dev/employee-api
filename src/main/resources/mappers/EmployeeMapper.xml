@@ -5,87 +5,58 @@
 
 <mapper namespace="com.example.employee_api.EmployeeMapper">
 
-    <!--
-        社員一覧取得
-
-        employee.department_id と department.id を結合して、
-        department.name を departmentName として取得する。
-    -->
     <select id="findAll" resultType="com.example.employee_api.Employee">
         SELECT
             e.id,
             e.name,
-            e.department,
             e.department_id,
-            d.name AS department_name
+            dm.name AS department_name
         FROM
             employee e
         LEFT JOIN
-            department d
+            department_master dm
         ON
-            e.department_id = d.id
+            e.department_id = dm.id
         ORDER BY
             e.id
     </select>
 
-    <!--
-        社員ID指定取得
-    -->
     <select id="findById" parameterType="long" resultType="com.example.employee_api.Employee">
         SELECT
             e.id,
             e.name,
-            e.department,
             e.department_id,
-            d.name AS department_name
+            dm.name AS department_name
         FROM
             employee e
         LEFT JOIN
-            department d
+            department_master dm
         ON
-            e.department_id = d.id
+            e.department_id = dm.id
         WHERE
             e.id = #{id}
     </select>
 
-    <!--
-        社員登録
-
-        今は旧departmentも残す。
-        最終的には department は削除し、department_id のみにする。
-    -->
     <insert id="insert" parameterType="com.example.employee_api.Employee">
         INSERT INTO employee (
             name,
-            department,
             department_id
         ) VALUES (
             #{name},
-            #{department},
             #{departmentId}
         )
     </insert>
 
-    <!--
-        社員更新
-
-        今は旧departmentも残す。
-        最終的には department は削除し、department_id のみにする。
-    -->
     <update id="update" parameterType="com.example.employee_api.Employee">
         UPDATE
             employee
         SET
             name = #{name},
-            department = #{department},
             department_id = #{departmentId}
         WHERE
             id = #{id}
     </update>
 
-    <!--
-        社員削除
-    -->
     <delete id="delete" parameterType="long">
         DELETE FROM
             employee
@@ -93,33 +64,25 @@
             id = #{id}
     </delete>
 
-    <!--
-        社員検索
-
-        keyword は社員名検索。
-        department は旧department文字列検索。
-        今は互換性のため残す。
-    -->
     <select id="search" resultType="com.example.employee_api.Employee">
         SELECT
             e.id,
             e.name,
-            e.department,
             e.department_id,
-            d.name AS department_name
+            dm.name AS department_name
         FROM
             employee e
         LEFT JOIN
-            department d
+            department_master dm
         ON
-            e.department_id = d.id
+            e.department_id = dm.id
         <where>
             <if test="keyword != null and keyword != ''">
                 e.name LIKE CONCAT('%', #{keyword}, '%')
             </if>
 
             <if test="department != null and department != ''">
-                AND e.department LIKE CONCAT('%', #{department}, '%')
+                AND dm.name LIKE CONCAT('%', #{department}, '%')
             </if>
         </where>
         ORDER BY

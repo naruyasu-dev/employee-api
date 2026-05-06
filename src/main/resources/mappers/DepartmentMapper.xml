@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "./mybatis-3-mapper.dtd">
-<!--  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" -->
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.employee_api.DepartmentMapper">
 
     <!--
-        部署一覧取得
+        部署マスタ一覧取得
 
-        department テーブルから全件取得する。
-        parent_id は Java 側の parentId に自動マッピングされる。
+        department_master テーブルから全件取得する。
     -->
     <select id="findAll" resultType="com.example.employee_api.Department">
         SELECT
@@ -18,15 +16,15 @@
             name,
             parent_id
         FROM
-            department
+            department_master
         ORDER BY
             id
     </select>
 
     <!--
-        部署詳細取得
+        部署マスタID指定取得
 
-        指定された id の部署情報を1件取得する。
+        指定された id の部署マスタ情報を1件取得する。
     -->
     <select id="findById" parameterType="long" resultType="com.example.employee_api.Department">
         SELECT
@@ -34,18 +32,16 @@
             name,
             parent_id
         FROM
-            department
+            department_master
         WHERE
             id = #{id}
     </select>
 
     <!--
-        部署登録
-
-        name と parent_id を登録する。
+        部署マスタ登録
     -->
     <insert id="insert" parameterType="com.example.employee_api.Department">
-        INSERT INTO department (
+        INSERT INTO department_master (
             name,
             parent_id
         ) VALUES (
@@ -55,13 +51,11 @@
     </insert>
 
     <!--
-        部署更新
-
-        指定された id の部署名、親部署IDを更新する。
+        部署マスタ更新
     -->
     <update id="update" parameterType="com.example.employee_api.Department">
         UPDATE
-            department
+            department_master
         SET
             name = #{name},
             parent_id = #{parentId}
@@ -70,22 +64,20 @@
     </update>
 
     <!--
-        部署削除
-
-        指定された id の部署を削除する。
+        部署マスタ削除
     -->
     <delete id="delete" parameterType="long">
         DELETE FROM
-            department
+            department_master
         WHERE
             id = #{id}
     </delete>
 
     <!--
-        部署検索
+        部署マスタ検索
 
-        keyword が未指定または空文字の場合は全件取得する。
-        keyword が指定された場合は部署名で部分一致検索する。
+        keyword が指定された場合、部署名で部分一致検索する。
+        keyword が未指定の場合は全件取得する。
     -->
     <select id="search" resultType="com.example.employee_api.Department">
         SELECT
@@ -93,7 +85,7 @@
             name,
             parent_id
         FROM
-            department
+            department_master
         <where>
             <if test="keyword != null and keyword != ''">
                 name LIKE CONCAT('%', #{keyword}, '%')
