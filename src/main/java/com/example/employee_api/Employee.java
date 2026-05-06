@@ -5,8 +5,14 @@ package com.example.employee_api;
  */
 public class Employee {
 
+    /**
+     * 社員ID
+     */
     private Long id;
 
+    /**
+     * 社員名
+     */
     private String name;
 
     /**
@@ -19,7 +25,7 @@ public class Employee {
     /**
      * 部署名
      *
-     * department_master.name を JOIN して取得する。
+     * department_master.name をJOINして取得する表示用項目。
      */
     private String departmentName;
 
