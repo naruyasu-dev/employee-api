@@ -21,16 +21,23 @@ public class Employee {
      * 部署名
      *
      * 旧項目。
-     * 今後は departmentId を使用する。
+     * 最終的には employee テーブルから削除予定。
      */
     private String department;
 
     /**
      * 部署ID
      *
-     * department テーブルの id に対応する。
+     * employee.department_id に対応する。
      */
     private Long departmentId;
+
+    /**
+     * 部署マスタ上の部署名
+     *
+     * department.name を JOIN して取得する表示用項目。
+     */
+    private String departmentName;
 
     /**
      * デフォルトコンストラクタ
@@ -41,7 +48,7 @@ public class Employee {
     /**
      * 旧形式のコンストラクタ
      *
-     * 既存テストや既存コードとの互換性のため残す。
+     * 既存テスト・既存処理との互換性のため残す。
      */
     public Employee(Long id, String name, String department) {
         this.id = id;
@@ -50,15 +57,24 @@ public class Employee {
     }
 
     /**
-     * 新形式のコンストラクタ
-     *
-     * departmentId を使用するERP風の形式。
+     * departmentId 対応コンストラクタ
      */
     public Employee(Long id, String name, String department, Long departmentId) {
         this.id = id;
         this.name = name;
         this.department = department;
         this.departmentId = departmentId;
+    }
+
+    /**
+     * departmentName 対応コンストラクタ
+     */
+    public Employee(Long id, String name, String department, Long departmentId, String departmentName) {
+        this.id = id;
+        this.name = name;
+        this.department = department;
+        this.departmentId = departmentId;
+        this.departmentName = departmentName;
     }
 
     public Long getId() {
@@ -91,5 +107,13 @@ public class Employee {
 
     public void setDepartmentId(Long departmentId) {
         this.departmentId = departmentId;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
     }
 }

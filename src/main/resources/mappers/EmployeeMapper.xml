@@ -1,38 +1,59 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "./mybatis-3-mapper.dtd">
-<!--  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" -->
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.employee_api.EmployeeMapper">
 
-    <!-- 社員一覧取得 -->
+    <!--
+        社員一覧取得
+
+        employee.department_id と department.id を結合して、
+        department.name を departmentName として取得する。
+    -->
     <select id="findAll" resultType="com.example.employee_api.Employee">
         SELECT
-            id,
-            name,
-            department,
-            department_id
+            e.id,
+            e.name,
+            e.department,
+            e.department_id,
+            d.name AS department_name
         FROM
-            employee
+            employee e
+        LEFT JOIN
+            department d
+        ON
+            e.department_id = d.id
         ORDER BY
-            id
+            e.id
     </select>
 
-    <!-- 社員ID指定取得 -->
+    <!--
+        社員ID指定取得
+    -->
     <select id="findById" parameterType="long" resultType="com.example.employee_api.Employee">
         SELECT
-            id,
-            name,
-            department,
-            department_id
+            e.id,
+            e.name,
+            e.department,
+            e.department_id,
+            d.name AS department_name
         FROM
-            employee
+            employee e
+        LEFT JOIN
+            department d
+        ON
+            e.department_id = d.id
         WHERE
-            id = #{id}
+            e.id = #{id}
     </select>
 
-    <!-- 社員登録 -->
+    <!--
+        社員登録
+
+        まだ旧departmentも残して登録する。
+        最終的にはdepartmentは削除予定。
+    -->
     <insert id="insert" parameterType="com.example.employee_api.Employee">
         INSERT INTO employee (
             name,
@@ -45,7 +66,12 @@
         )
     </insert>
 
-    <!-- 社員更新 -->
+    <!--
+        社員更新
+
+        まだ旧departmentも残して更新する。
+        最終的にはdepartmentは削除予定。
+    -->
     <update id="update" parameterType="com.example.employee_api.Employee">
         UPDATE
             employee
@@ -57,7 +83,9 @@
             id = #{id}
     </update>
 
-    <!-- 社員削除 -->
+    <!--
+        社員削除
+    -->
     <delete id="delete" parameterType="long">
         DELETE FROM
             employee
@@ -65,26 +93,37 @@
             id = #{id}
     </delete>
 
-    <!-- 社員検索 -->
+    <!--
+        社員検索
+
+        keyword は社員名検索。
+        department は旧department文字列検索。
+        今は互換性のため残す。
+    -->
     <select id="search" resultType="com.example.employee_api.Employee">
         SELECT
-            id,
-            name,
-            department,
-            department_id
+            e.id,
+            e.name,
+            e.department,
+            e.department_id,
+            d.name AS department_name
         FROM
-            employee
+            employee e
+        LEFT JOIN
+            department d
+        ON
+            e.department_id = d.id
         <where>
             <if test="keyword != null and keyword != ''">
-                name LIKE CONCAT('%', #{keyword}, '%')
+                e.name LIKE CONCAT('%', #{keyword}, '%')
             </if>
 
             <if test="department != null and department != ''">
-                AND department LIKE CONCAT('%', #{department}, '%')
+                AND e.department LIKE CONCAT('%', #{department}, '%')
             </if>
         </where>
         ORDER BY
-            id
+            e.id
     </select>
 
 </mapper>
