@@ -51,8 +51,8 @@
     <!--
         社員登録
 
-        まだ旧departmentも残して登録する。
-        最終的にはdepartmentは削除予定。
+        今は旧departmentも残す。
+        最終的には department は削除し、department_id のみにする。
     -->
     <insert id="insert" parameterType="com.example.employee_api.Employee">
         INSERT INTO employee (
@@ -69,8 +69,8 @@
     <!--
         社員更新
 
-        まだ旧departmentも残して更新する。
-        最終的にはdepartmentは削除予定。
+        今は旧departmentも残す。
+        最終的には department は削除し、department_id のみにする。
     -->
     <update id="update" parameterType="com.example.employee_api.Employee">
         UPDATE

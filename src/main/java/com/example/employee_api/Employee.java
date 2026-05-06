@@ -18,7 +18,7 @@ public class Employee {
     private String name;
 
     /**
-     * 部署名
+     * 旧部署名
      *
      * 旧項目。
      * 最終的には employee テーブルから削除予定。
