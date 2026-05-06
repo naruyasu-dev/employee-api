@@ -5,43 +5,30 @@
 
 <mapper namespace="com.example.employee_api.DepartmentMapper">
 
-    <!--
-        部署マスタ一覧取得
-
-        department_master テーブルから全件取得する。
-    -->
     <select id="findAll" resultType="com.example.employee_api.Department">
         SELECT
             id,
             name,
             parent_id
         FROM
-            department_master
+            m_department
         ORDER BY
             id
     </select>
 
-    <!--
-        部署マスタID指定取得
-
-        指定された id の部署マスタ情報を1件取得する。
-    -->
     <select id="findById" parameterType="long" resultType="com.example.employee_api.Department">
         SELECT
             id,
             name,
             parent_id
         FROM
-            department_master
+            m_department
         WHERE
             id = #{id}
     </select>
 
-    <!--
-        部署マスタ登録
-    -->
     <insert id="insert" parameterType="com.example.employee_api.Department">
-        INSERT INTO department_master (
+        INSERT INTO m_department (
             name,
             parent_id
         ) VALUES (
@@ -50,12 +37,9 @@
         )
     </insert>
 
-    <!--
-        部署マスタ更新
-    -->
     <update id="update" parameterType="com.example.employee_api.Department">
         UPDATE
-            department_master
+            m_department
         SET
             name = #{name},
             parent_id = #{parentId}
@@ -63,29 +47,20 @@
             id = #{id}
     </update>
 
-    <!--
-        部署マスタ削除
-    -->
     <delete id="delete" parameterType="long">
         DELETE FROM
-            department_master
+            m_department
         WHERE
             id = #{id}
     </delete>
 
-    <!--
-        部署マスタ検索
-
-        keyword が指定された場合、部署名で部分一致検索する。
-        keyword が未指定の場合は全件取得する。
-    -->
     <select id="search" resultType="com.example.employee_api.Department">
         SELECT
             id,
             name,
             parent_id
         FROM
-            department_master
+            m_department
         <where>
             <if test="keyword != null and keyword != ''">
                 name LIKE CONCAT('%', #{keyword}, '%')

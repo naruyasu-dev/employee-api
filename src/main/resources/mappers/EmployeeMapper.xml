@@ -10,13 +10,13 @@
             e.id,
             e.name,
             e.department_id,
-            dm.name AS department_name
+            d.name AS department_name
         FROM
-            employee e
+            m_employee e
         LEFT JOIN
-            department_master dm
+            m_department d
         ON
-            e.department_id = dm.id
+            e.department_id = d.id
         ORDER BY
             e.id
     </select>
@@ -26,19 +26,19 @@
             e.id,
             e.name,
             e.department_id,
-            dm.name AS department_name
+            d.name AS department_name
         FROM
-            employee e
+            m_employee e
         LEFT JOIN
-            department_master dm
+            m_department d
         ON
-            e.department_id = dm.id
+            e.department_id = d.id
         WHERE
             e.id = #{id}
     </select>
 
     <insert id="insert" parameterType="com.example.employee_api.Employee">
-        INSERT INTO employee (
+        INSERT INTO m_employee (
             name,
             department_id
         ) VALUES (
@@ -49,7 +49,7 @@
 
     <update id="update" parameterType="com.example.employee_api.Employee">
         UPDATE
-            employee
+            m_employee
         SET
             name = #{name},
             department_id = #{departmentId}
@@ -59,7 +59,7 @@
 
     <delete id="delete" parameterType="long">
         DELETE FROM
-            employee
+            m_employee
         WHERE
             id = #{id}
     </delete>
@@ -69,20 +69,20 @@
             e.id,
             e.name,
             e.department_id,
-            dm.name AS department_name
+            d.name AS department_name
         FROM
-            employee e
+            m_employee e
         LEFT JOIN
-            department_master dm
+            m_department d
         ON
-            e.department_id = dm.id
+            e.department_id = d.id
         <where>
             <if test="keyword != null and keyword != ''">
                 e.name LIKE CONCAT('%', #{keyword}, '%')
             </if>
 
             <if test="department != null and department != ''">
-                AND dm.name LIKE CONCAT('%', #{department}, '%')
+                AND d.name LIKE CONCAT('%', #{department}, '%')
             </if>
         </where>
         ORDER BY
