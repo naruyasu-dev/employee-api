@@ -89,4 +89,11 @@
             e.id
     </select>
 
+    <select id="count" resultType="int">
+    	SELECT
+        	COUNT(*)
+	    FROM
+    	    m_employee
+	</select>
+
 </mapper>
