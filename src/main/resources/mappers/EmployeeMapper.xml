@@ -96,4 +96,12 @@
     	    m_employee
 	</select>
 
+	<select id="getEmployeeCount"
+	        statementType="CALLABLE"
+        	parameterType="map">
+    	{ call employee_db.get_employee_count(
+        	#{count, mode=OUT, jdbcType=INTEGER}
+		) }
+	</select>
+
 </mapper>

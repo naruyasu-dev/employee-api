@@ -1,6 +1,7 @@
 package com.example.employee_api.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -23,5 +24,5 @@ public interface EmployeeMapper {
     List<Employee> search(@Param("keyword") String keyword,
                           @Param("departmentId") Long departmentId);
 
-    int count();
+    void getEmployeeCount(Map<String, Object> params);
 }

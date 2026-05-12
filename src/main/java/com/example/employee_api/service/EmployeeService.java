@@ -1,6 +1,8 @@
 package com.example.employee_api.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -40,7 +42,11 @@ public class EmployeeService {
         return employeeMapper.search(keyword, departmentId);
     }
 
-    public int count() {
-        return employeeMapper.count();
+    public int countByProcedure() {
+        Map<String, Object> params = new HashMap<>();
+
+        employeeMapper.getEmployeeCount(params);
+
+        return ((Number) params.get("count")).intValue();
     }
 }

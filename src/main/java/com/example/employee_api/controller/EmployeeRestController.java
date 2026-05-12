@@ -31,7 +31,7 @@ public class EmployeeRestController {
 
     @GetMapping("/count")
     public int count() {
-        return employeeService.count();
+        return employeeService.countByProcedure();
     }
 
     @GetMapping("/{id}")
