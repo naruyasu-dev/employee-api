@@ -2,15 +2,38 @@ pipeline {
     agent any
 
     environment {
+        // Tomcat の場所
         TOMCAT_HOME = 'C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1'
-        WAR_NAME    = 'employee-api.war'
-        APP_NAME    = 'employee-api'
+
+        // Spring Boot API
+        WAR_NAME = 'employee-api.war'
+        APP_NAME = 'employee-api'
+
+        // React UI
+        REACT_HOME = 'C:\\work\\employee-react-ui'
+        UI_APP_NAME = 'employee-ui'
     }
 
     stages {
+
+        stage('Build React') {
+            steps {
+                bat '''
+                echo ===== Build React =====
+
+                cd /d "%REACT_HOME%"
+
+                call npm install
+                call npm run build
+                '''
+            }
+        }
+
         stage('Build WAR') {
             steps {
                 bat '''
+                echo ===== Build WAR =====
+
                 call mvn clean package -DskipTests
                 '''
             }
@@ -39,29 +62,26 @@ pipeline {
             }
         }
 
-        stage('Deploy Angular') {
+        stage('Deploy React') {
             steps {
                 bat '''
-                echo ===== Deploy Angular =====
+                echo ===== Deploy React =====
 
-                set "SRC=C:\\Users\\ota\\employee-ui\\dist\\employee-ui"
-                set "DST=%TOMCAT_HOME%\\webapps\\employee-ui"
+                set "SRC=%REACT_HOME%\\dist"
+                set "DST=%TOMCAT_HOME%\\webapps\\%UI_APP_NAME%"
 
                 if not exist "%SRC%" (
                     echo ERROR: %SRC% not found
                     exit /b 1
                 )
 
-                if not exist "%DST%" (
-                    mkdir "%DST%"
+                if exist "%DST%" (
+                    rmdir /s /q "%DST%"
                 )
+
+                mkdir "%DST%"
 
                 xcopy "%SRC%\\*" "%DST%\\" /E /I /Y
-
-                if exist "%DST%\\browser" (
-                    move "%DST%\\browser\\*" "%DST%\\" >nul
-                    rmdir /s /q "%DST%\\browser"
-                )
                 '''
             }
         }
