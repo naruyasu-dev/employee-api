@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  "./mybatis-3-mapper.dtd">
+<!--  "https://mybatis.org/dtd/mybatis-3-mapper.dtd" -->
 
 <mapper namespace="com.example.employee_api.DepartmentMapper">
 
-    <select id="findAll" resultType="com.example.employee_api.Department">
+    <select id="findAll" resultType="com.example.employee_api.model.Department">
         SELECT
             id,
             name,
@@ -16,7 +17,7 @@
             id
     </select>
 
-    <select id="findById" parameterType="long" resultType="com.example.employee_api.Department">
+    <select id="findById" parameterType="long" resultType="com.example.employee_api.model.Department">
         SELECT
             id,
             name,
@@ -27,7 +28,7 @@
             id = #{id}
     </select>
 
-    <insert id="insert" parameterType="com.example.employee_api.Department">
+    <insert id="insert" parameterType="com.example.employee_api.model.Department">
         INSERT INTO m_department (
             name,
             parent_id
@@ -37,7 +38,7 @@
         )
     </insert>
 
-    <update id="update" parameterType="com.example.employee_api.Department">
+    <update id="update" parameterType="com.example.employee_api.model.Department">
         UPDATE
             m_department
         SET
@@ -54,7 +55,7 @@
             id = #{id}
     </delete>
 
-    <select id="search" resultType="com.example.employee_api.Department">
+    <select id="search" resultType="com.example.employee_api.model.Department">
         SELECT
             id,
             name,
