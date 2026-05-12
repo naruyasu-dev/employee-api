@@ -3,7 +3,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.employee_api.DepartmentMapper">
+<mapper namespace="com.example.employee_api.mapper.DepartmentMapper">
 
     <select id="findAll" resultType="com.example.employee_api.model.Department">
         SELECT
