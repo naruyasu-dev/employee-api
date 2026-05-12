@@ -1,9 +1,12 @@
-package com.example.employee_api;
+package com.example.employee_api.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.example.employee_api.mapper.DepartmentMapper;
+import com.example.employee_api.model.Department;
 
 /**
  * 部署情報の業務処理を行うServiceクラス

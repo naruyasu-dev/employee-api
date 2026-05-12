@@ -9,6 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.example.employee_api.mapper.EmployeeMapper;
+import com.example.employee_api.model.Employee;
+import com.example.employee_api.service.EmployeeService;
+
 class EmployeeServiceTest {
 
     private EmployeeMapper employeeMapper;

@@ -1,4 +1,4 @@
-package com.example.employee_api;
+package com.example.employee_api.model;
 
 /**
  * 社員情報を保持するモデルクラス

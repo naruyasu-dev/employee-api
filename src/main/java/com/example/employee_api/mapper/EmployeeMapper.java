@@ -1,8 +1,10 @@
-package com.example.employee_api;
+package com.example.employee_api.mapper;
 
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+
+import com.example.employee_api.model.Employee;
 
 /**
  * Employee テーブルに対するデータアクセス用インターフェース（Mapper）

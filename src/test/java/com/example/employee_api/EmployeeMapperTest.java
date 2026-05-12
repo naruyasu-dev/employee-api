@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.example.employee_api.model.Employee;
+
 class EmployeeMapperTest {
 
     @Test

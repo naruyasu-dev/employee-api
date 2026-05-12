@@ -13,6 +13,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.employee_api.controller.EmployeeRestController;
+import com.example.employee_api.mapper.DepartmentMapper;
+import com.example.employee_api.mapper.EmployeeMapper;
+import com.example.employee_api.model.Employee;
+import com.example.employee_api.service.EmployeeService;
+
 @WebMvcTest(EmployeeRestController.class)
 class EmployeeRestControllerTest {
 

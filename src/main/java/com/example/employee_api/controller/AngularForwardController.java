@@ -1,12 +1,12 @@
-package com.example.employee_api;
+package com.example.employee_api.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class AngularForwardController {
 
-    @RequestMapping({
+    @GetMapping({
             "/employee-ui",
             "/employee-ui/",
             "/employee-ui/employees",
