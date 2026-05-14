@@ -1,4 +1,4 @@
-package com.example.employee_api;
+package com.example.employee_api.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @Disabled
-class DepartmentTest {
+class DepartmentMapperTest {
 
 	@Test
 	void test() {

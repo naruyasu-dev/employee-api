@@ -1,4 +1,4 @@
-package com.example.employee_api;
+package com.example.employee_api.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
