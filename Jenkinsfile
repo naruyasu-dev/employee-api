@@ -2,86 +2,85 @@ pipeline {
     agent any
 
     environment {
-        // Tomcat の場所
         TOMCAT_HOME = 'C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1'
+        APACHE_HOME = 'C:\\Apache24'
 
-        // Spring Boot API
-        WAR_NAME = 'employee-api.war'
-        APP_NAME = 'employee-api'
+        BACKEND_WAR = 'employee-api.war'
+        BACKEND_APP = 'employee-api'
 
-        // React UI
         REACT_HOME = 'C:\\work\\employee-react-ui'
-        UI_APP_NAME = 'employee-ui'
+        REACT_DIST = 'C:\\work\\employee-react-ui\\dist'
+        APACHE_UI_DIR = 'C:\\Apache24\\htdocs\\employee-ui'
     }
 
     stages {
-
-        stage('Build React') {
+        stage('Checkout Backend') {
             steps {
-                bat '''
-                echo ===== Build React =====
+                checkout scm
+            }
+        }
 
+        stage('Build React UI') {
+            steps {
+                bat """
                 cd /d "%REACT_HOME%"
-
                 call npm install
                 call npm run build
-                '''
+                """
             }
         }
 
-        stage('Build WAR') {
+        stage('Deploy React UI to Apache') {
             steps {
-                bat '''
-                echo ===== Build WAR =====
+                bat """
+                if exist "%APACHE_UI_DIR%" rmdir /S /Q "%APACHE_UI_DIR%"
+                mkdir "%APACHE_UI_DIR%"
+                xcopy /E /I /Y "%REACT_DIST%\\*" "%APACHE_UI_DIR%\\"
+                """
+            }
+        }
 
+        stage('Build Spring Boot WAR') {
+            steps {
+                bat """
                 call mvn clean package -DskipTests
-                '''
+                """
             }
         }
 
-        stage('Deploy WAR') {
+        stage('Stop Tomcat') {
             steps {
-                bat '''
-                echo ===== Deploy WAR =====
-
-                if not exist target\\%WAR_NAME% (
-                    echo ERROR: target\\%WAR_NAME% not found
-                    exit /b 1
-                )
-
-                if exist "%TOMCAT_HOME%\\webapps\\%WAR_NAME%" (
-                    del /f /q "%TOMCAT_HOME%\\webapps\\%WAR_NAME%"
-                )
-
-                if exist "%TOMCAT_HOME%\\webapps\\%APP_NAME%" (
-                    rmdir /s /q "%TOMCAT_HOME%\\webapps\\%APP_NAME%"
-                )
-
-                copy /y target\\%WAR_NAME% "%TOMCAT_HOME%\\webapps\\"
-                '''
+                bat """
+                net stop Tomcat10
+                exit /b 0
+                """
             }
         }
 
-        stage('Deploy React') {
+        stage('Deploy WAR to Tomcat') {
             steps {
-                bat '''
-                echo ===== Deploy React =====
+                bat """
+                if exist "%TOMCAT_HOME%\\webapps\\%BACKEND_WAR%" del /Q "%TOMCAT_HOME%\\webapps\\%BACKEND_WAR%"
+                if exist "%TOMCAT_HOME%\\webapps\\%BACKEND_APP%" rmdir /S /Q "%TOMCAT_HOME%\\webapps\\%BACKEND_APP%"
 
-                set "SRC=%REACT_HOME%\\dist"
-                set "DST=%TOMCAT_HOME%\\webapps\\%UI_APP_NAME%"
+                copy /Y "target\\%BACKEND_WAR%" "%TOMCAT_HOME%\\webapps\\%BACKEND_WAR%"
+                """
+            }
+        }
 
-                if not exist "%SRC%" (
-                    echo ERROR: %SRC% not found
-                    exit /b 1
-                )
+        stage('Start Tomcat') {
+            steps {
+                bat """
+                net start Tomcat10
+                """
+            }
+        }
 
-                if exist "%DST%" (
-                    rmdir /s /q "%DST%"
-                )
-
-                mkdir "%DST%"
-                xcopy "%SRC%\\*" "%DST%\\" /E /I /Y
-                '''
+        stage('Restart Apache') {
+            steps {
+                bat """
+                "%APACHE_HOME%\\bin\\httpd.exe" -k restart -n "Apache24"
+                """
             }
         }
     }
