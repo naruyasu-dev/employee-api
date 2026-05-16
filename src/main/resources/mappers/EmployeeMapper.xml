@@ -65,36 +65,29 @@
             id = #{id}
     </delete>
 
-    <select id="search" resultType="com.example.employee_api.model.Employee">
-        SELECT
-            e.id,
-            e.name,
-            e.department_id,
-            d.name AS department_name
-        FROM
-            m_employee e
-        LEFT JOIN
-            m_department d
-        ON
-            e.department_id = d.id
-        <where>
-            <if test="keyword != null and keyword != ''">
-                e.name LIKE CONCAT('%', #{keyword}, '%')
-            </if>
-
-            <if test="department != null and department != ''">
-                AND d.name LIKE CONCAT('%', #{department}, '%')
-            </if>
-        </where>
-        ORDER BY
-            e.id
-    </select>
-
-    <select id="count" resultType="int">
-    	SELECT
-        	COUNT(*)
+	<select id="search" resultType="com.example.employee_api.model.Employee">
+	    SELECT
+    	    e.id,
+        	e.name,
+        	e.department_id,
+        	d.name AS department_name
 	    FROM
-    	    m_employee
+    	    m_employee e
+	    LEFT JOIN
+    	    m_department d
+	    ON
+    	    e.department_id = d.id
+	    <where>
+        	<if test="keyword != null and keyword != ''">
+            	e.name LIKE CONCAT('%', #{keyword}, '%')
+	        </if>
+
+	        <if test="departmentId != null">
+            	AND e.department_id = #{departmentId}
+	        </if>
+    	</where>
+	    ORDER BY
+        	e.id
 	</select>
 
 	<select id="getEmployeeCount"
