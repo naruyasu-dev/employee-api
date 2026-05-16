@@ -80,7 +80,6 @@ pipeline {
                 )
 
                 mkdir "%DST%"
-
                 xcopy "%SRC%\\*" "%DST%\\" /E /I /Y
                 '''
             }
