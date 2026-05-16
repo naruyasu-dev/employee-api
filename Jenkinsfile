@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         TOMCAT_HOME = 'C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1'
+
         BACKEND_WAR = 'employee-api.war'
         BACKEND_APP = 'employee-api'
 
@@ -12,12 +13,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Backend') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Build React UI') {
             steps {
                 bat """
@@ -55,6 +50,15 @@ pipeline {
                 copy /Y "target\\%BACKEND_WAR%" "%TOMCAT_HOME%\\webapps\\%BACKEND_WAR%"
                 """
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deploy completed successfully.'
+        }
+        failure {
+            echo 'Deploy failed. Check Console Output.'
         }
     }
 }
