@@ -3,8 +3,6 @@ pipeline {
 
     environment {
         TOMCAT_HOME = 'C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1'
-        APACHE_HOME = 'C:\\Apache24'
-
         BACKEND_WAR = 'employee-api.war'
         BACKEND_APP = 'employee-api'
 
@@ -48,15 +46,6 @@ pipeline {
             }
         }
 
-        stage('Stop Tomcat') {
-            steps {
-                bat """
-                net stop Tomcat10
-                exit /b 0
-                """
-            }
-        }
-
         stage('Deploy WAR to Tomcat') {
             steps {
                 bat """
@@ -64,22 +53,6 @@ pipeline {
                 if exist "%TOMCAT_HOME%\\webapps\\%BACKEND_APP%" rmdir /S /Q "%TOMCAT_HOME%\\webapps\\%BACKEND_APP%"
 
                 copy /Y "target\\%BACKEND_WAR%" "%TOMCAT_HOME%\\webapps\\%BACKEND_WAR%"
-                """
-            }
-        }
-
-        stage('Start Tomcat') {
-            steps {
-                bat """
-                net start Tomcat10
-                """
-            }
-        }
-
-        stage('Restart Apache') {
-            steps {
-                bat """
-                "%APACHE_HOME%\\bin\\httpd.exe" -k restart -n "Apache24"
                 """
             }
         }
