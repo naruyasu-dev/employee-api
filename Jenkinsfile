@@ -53,6 +53,18 @@ pipeline {
         }
     }
 
+	stage('Health Check') {
+	    steps {
+        	bat """
+        	timeout /t 10 /nobreak
+
+	        curl -f http://localhost/employee-ui/
+	        curl -f http://localhost/employee-api/employees
+	        curl -f http://localhost:8080/employee-api/employees
+	        """
+    	}
+	}
+
     post {
         success {
             echo 'Deploy completed successfully.'
